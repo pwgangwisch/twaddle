@@ -1,5 +1,4 @@
 import urllib
-returnValue = []
 import urllib.request
 import time
 from datetime import datetime
@@ -62,7 +61,6 @@ def twaddle(url, level):
     newUrls = parser.getUrlsPending()
     logFile.write('Got %s words and %s urls\n\n'%(len(newWt.getTally()),
                                                 len(newUrls)))
-    #logWt(newWt) # write the data for this url to log file
     if summaryWt == None:
         summaryWt = newWt
     else:
@@ -72,10 +70,6 @@ def twaddle(url, level):
             #make recursive call to twaddle
             time.sleep(2.5) # slow down our requests to server
             twaddle(newUrl, level+1)
-
-def logWt(wt):
-    global logFile
-    logFile.write('URL: %s Tally: %s\n' % (wt.getUrl(), wt.getTally()))
 
 def runTwaddle(url): # do not put a trailing / in the url
     global logFile
