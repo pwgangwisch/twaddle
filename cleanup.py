@@ -3,8 +3,6 @@
 # Making this a separate module makes it easy to add to the list as necessary.
 # The procedure deletes them from the input wordTally.
 
-import re # regular expressions
-
 throwaways = ['A', 'ABOUT', 'ALL', 'ALSO', 'AM', 'AN', 'AND', 'ANY', 'ARE',
         'AS', 'AT', 'BE', 'BECAUSE', 'BEEN', 'BUT', 'BY', 'CAN', 'DID', 'DO',
         'DON\'T', 'DURING', 'ET', 'FOR', 'FROM', 'GET', 'HAD', 'HAS', 'HAVE',
