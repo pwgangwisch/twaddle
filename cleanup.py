@@ -28,7 +28,7 @@ def cleanup(wt):
         if len(key) < 2:
             deletions += [key]
         else: # remove annoying date strings MO/DY/YR
-            test = key.split('\')
+            test = key.split('/')
             if len(test) == 3:
                 deletions +=[key]
     for item in deletions:
