@@ -3,7 +3,8 @@ import urllib.request
 import time
 from datetime import datetime
 import wordtally
-from twaddleparser import theHillParser
+from thehillparser import theHillParser
+from foxparser import foxParser
 from cleanup import cleanup
 
 summaryWt = None
@@ -14,16 +15,18 @@ runTime = None
 # fake the server that we are using my browser!
 httpHeader = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'}
 
-def twaddle(url, level):
+def twaddle(url, level, recursionDepth=2):
     # This module connects to a web site and parses the code to find words
     # in articles and count them, and for each page, get any links. It then
     # is called recursively for each unvisited link where it again counts
     # words in articles, gets links and visits them recursively to a depth
     # of 2.  The initial URL is depth 0.
-    recursionDepth = 2
     global logFile, urlsRead, summaryWt, siteName, runTime, httpHeader
     # parsers tuned to the site we are reading
-    parsers = {'thehill.com': theHillParser} # more to come
+    parsers = {'thehill.com': theHillParser, 'cnn.com': theHillParser,
+            'www.foxnews.com': foxParser,
+            'www.culturalevolution.org':theHillParser,
+            'braverangels.org': theHillParser} # more to come
     if siteName == None: # globals initialized first time called
         urlsRead = [url]
         siteName = url.split('/')[2]
@@ -38,7 +41,7 @@ def twaddle(url, level):
         else:
             urlsRead += [url]
     # choose our parser based on target site
-    parser = parsers[siteName](url, siteName, logFile, urlsRead)
+    parser = parsers[siteName](url, siteName, logFile)
     httpRequest = urllib.request.Request(url, None, httpHeader)
     try:
         dataStream = urllib.request.urlopen(httpRequest)
@@ -49,11 +52,12 @@ def twaddle(url, level):
         return
     print('%s%s level %d' % (' '*level, url[:150], level)) # console display
     logFile.write('\n\nParsing %s\n' % url)
-    try:
-        parser.feed(str(dataStream.read()))
-    except:
-        logFile.write('Error parsing %s\n' % url)
-        return
+    parser.feed(str(dataStream.read()))
+#    try:
+#        parser.feed(str(dataStream.read()))
+#    except:
+#        logFile.write('Error parsing %s\n' % url)
+#        return
     dataStream.close()
     # We should now have our wt and url list populated
     newWt = parser.getWordTally()
@@ -78,12 +82,12 @@ def twaddle(url, level):
         for newUrl in newUrls:
             #make recursive call to twaddle
             time.sleep(2.5) # slow down our requests to server
-            twaddle(newUrl, level+1)
+            twaddle(newUrl, level+1, recursionDepth)
     if level == 0:
         logFile.close()
 
-def runTwaddle(url): # do not put a trailing / in the url
+def runTwaddle(url, recursionDepth=2): # do not put a trailing / in the url
     global logFile, summaryWt, siteName, runTime
-    twaddle(url, 0)
+    twaddle(url, 0, recursionDepth)
     summaryWt = cleanup(summaryWt)
     summaryWt.createDataFile('words:%s%s.txt' % (siteName, str(runTime)[:-8]))
